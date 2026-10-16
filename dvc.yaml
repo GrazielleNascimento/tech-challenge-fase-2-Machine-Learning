@@ -43,3 +43,38 @@ stages:
 
     outs:
       - ${data.prepared_path}
+
+  train:
+    cmd: >
+      poetry run python -m purchase_propensity.models.train
+      --input "${data.prepared_path}/${data.train_dataset_file}"
+      --output "${model.model_path}/${model.model_file}"
+
+    deps:
+      - ${data.prepared_path}/${data.train_dataset_file}
+      - src/purchase_propensity/models/train.py
+
+    params:
+      - configs/config.yaml:
+          - project.random_seed
+          - model.params
+
+    outs:
+      - ${model.model_path}/${model.model_file}
+
+
+  evaluate:
+    cmd: >
+      poetry run python -m purchase_propensity.models.evaluate
+      --model "${model.model_path}/${model.model_file}"
+      --input "${data.prepared_path}/${data.test_dataset_file}"
+      --output "${model.metrics_path}/${model.metrics_file}"
+
+    deps:
+      - ${model.model_path}/${model.model_file}
+      - ${data.prepared_path}/${data.test_dataset_file}
+      - src/purchase_propensity/models/evaluate.py
+
+    metrics:
+      - ${model.metrics_path}/${model.metrics_file}:
+          cache: false
