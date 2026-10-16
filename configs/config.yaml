@@ -14,3 +14,12 @@ data:
 model:
   target_column: revenue
   test_size: 0.2
+  model_path: models
+  model_file: model.joblib
+  metrics_path: metrics
+  metrics_file: metrics.json
+  params:
+    n_estimators: 200
+    max_depth: 10
+    min_samples_leaf: 2
+    class_weight: balanced

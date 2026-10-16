@@ -6,8 +6,8 @@ stages:
     deps:
     - path: configs/config.yaml
       hash: md5
-      md5: 45caafabd79c87df19db69eebd32ea52
-      size: 428
+      md5: ba6bb11dd11c91baa720a3c3dc673d9d
+      size: 631
     - path: src/purchase_propensity/data/download.py
       hash: md5
       md5: 21adec51504210eec79490354402a5f4
@@ -52,3 +52,49 @@ stages:
       md5: a041013c57773e6eef6ce0309e98955b.dir
       size: 4483024
       nfiles: 2
+  train:
+    cmd: "poetry run python -m purchase_propensity.models.train --input \"data/prepared/train.csv\"\
+      \ --output \"models/model.joblib\"\n"
+    deps:
+    - path: data/prepared/train.csv
+      hash: md5
+      md5: cbe6ad96eed8efc579ae9d4d329384f8
+      size: 3585401
+    - path: src/purchase_propensity/models/train.py
+      hash: md5
+      md5: 96ab54e0717670fabbbec91a957db1f4
+      size: 3515
+    params:
+      configs/config.yaml:
+        model.params:
+          n_estimators: 200
+          max_depth: 10
+          min_samples_leaf: 2
+          class_weight: balanced
+        project.random_seed: 42
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: a44a3fcbfb479a725a69c428e203242c
+      size: 7690969
+  evaluate:
+    cmd: "poetry run python -m purchase_propensity.models.evaluate --model \"models/model.joblib\"\
+      \ --input \"data/prepared/test.csv\" --output \"metrics/metrics.json\"\n"
+    deps:
+    - path: data/prepared/test.csv
+      hash: md5
+      md5: 91f2a75940f975220c7112d2054601f1
+      size: 897623
+    - path: models/model.joblib
+      hash: md5
+      md5: a44a3fcbfb479a725a69c428e203242c
+      size: 7690969
+    - path: src/purchase_propensity/models/evaluate.py
+      hash: md5
+      md5: 4adf81e329382dc17048dbfa20fb2ac6
+      size: 3358
+    outs:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: a3da08ee358bf4c606ae2a758e7d3b1b
+      size: 170
