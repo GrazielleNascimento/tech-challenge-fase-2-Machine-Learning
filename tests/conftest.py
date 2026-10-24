@@ -1,5 +1,7 @@
 """Shared pytest fixtures."""
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -33,3 +35,12 @@ def valid_dataframe() -> pd.DataFrame:
             "Revenue": [False, True, False],
         },
     )
+
+
+@pytest.fixture
+def mlflow_tracking(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Isolate MLflow in a temporary SQLite store and artifact directory."""
+    monkeypatch.chdir(tmp_path)
+    tracking_uri = f"sqlite:///{(tmp_path / 'mlflow.db').as_posix()}"
+    monkeypatch.setenv("MLFLOW_TRACKING_URI", tracking_uri)
+    return tmp_path

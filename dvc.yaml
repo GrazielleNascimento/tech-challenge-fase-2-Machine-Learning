@@ -78,3 +78,47 @@ stages:
     metrics:
       - ${model.metrics_path}/${model.metrics_file}:
           cache: false
+
+
+  track:
+    cmd: >
+      poetry run python -m purchase_propensity.models.tracking
+      --model "${model.model_path}/${model.model_file}"
+      --metrics "${model.metrics_path}/${model.metrics_file}"
+      --input "${data.prepared_path}/${data.test_dataset_file}"
+      --output "${model.metrics_path}/${mlflow.run_info_file}"
+
+    deps:
+      - ${model.model_path}/${model.model_file}
+      - ${model.metrics_path}/${model.metrics_file}
+      - src/purchase_propensity/models/tracking.py
+
+    params:
+      - configs/config.yaml:
+          - mlflow.experiment_name
+
+    outs:
+      - ${model.metrics_path}/${mlflow.run_info_file}:
+          cache: false
+
+
+  register:
+    cmd: >
+      poetry run python -m purchase_propensity.models.registry
+      --input "${model.metrics_path}/${mlflow.run_info_file}"
+      --output "${model.metrics_path}/${mlflow.registry_info_file}"
+
+    deps:
+      - ${model.metrics_path}/${mlflow.run_info_file}
+      - src/purchase_propensity/models/registry.py
+
+    params:
+      - configs/config.yaml:
+          - mlflow.registered_model_name
+          - mlflow.champion_alias
+          - mlflow.selection_metric
+          - mlflow.min_improvement
+
+    outs:
+      - ${model.metrics_path}/${mlflow.registry_info_file}:
+          cache: false
