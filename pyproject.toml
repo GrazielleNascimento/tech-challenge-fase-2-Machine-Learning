@@ -9,15 +9,20 @@ dependencies = [
     "numpy>=1.26,<3.0",
     "scikit-learn>=1.5,<2.0",
     "pyyaml>=6.0,<7.0",
+    "mlflow>=3.4,<4.0",
+    "python-dotenv>=1.0,<2.0",
+    "joblib>=1.4,<2.0",
 ]
 
 [tool.poetry]
 packages = [{ include = "purchase_propensity", from = "src" }]
 
+[tool.poetry.group.pipeline.dependencies]
+dvc = "^3.67.1"
+
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.0,<10.0"
 ruff = ">=0.9,<1.0"
-dvc = "^3.67.1"
 ipykernel = "^7.4.0"
 matplotlib = "^3.11.2"
 

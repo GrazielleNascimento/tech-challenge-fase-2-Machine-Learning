@@ -6,12 +6,12 @@ stages:
     deps:
     - path: configs/config.yaml
       hash: md5
-      md5: ba6bb11dd11c91baa720a3c3dc673d9d
-      size: 631
+      md5: 87598a50cc2fa1dab980ee6ffdf97b11
+      size: 1010
     - path: src/purchase_propensity/data/download.py
       hash: md5
-      md5: 21adec51504210eec79490354402a5f4
-      size: 1298
+      md5: 64fba419f0a50185a11e21c53bbde707
+      size: 1252
     outs:
     - path: data/raw/online_shoppers_intention.csv
       hash: md5
@@ -27,8 +27,8 @@ stages:
       size: 1072063
     - path: src/purchase_propensity/data/preprocessing.py
       hash: md5
-      md5: 440cdaf117f744011674779b45e7a69b
-      size: 6630
+      md5: 1cc604f00a3c0722e6e2e00a77c0fed2
+      size: 6380
     outs:
     - path: data/processed/online_shoppers_intention.csv
       hash: md5
@@ -44,8 +44,8 @@ stages:
       size: 1159694
     - path: src/purchase_propensity/features/build_features.py
       hash: md5
-      md5: 058550a398963980dd84f25c95af7fec
-      size: 11131
+      md5: 29383a23176c63dbd7e2f1a90d1e35d4
+      size: 10703
     outs:
     - path: data/prepared
       hash: md5
@@ -98,3 +98,51 @@ stages:
       hash: md5
       md5: a3da08ee358bf4c606ae2a758e7d3b1b
       size: 170
+  track:
+    cmd: "poetry run python -m purchase_propensity.models.tracking --model \"models/model.joblib\"\
+      \ --metrics \"metrics/metrics.json\" --input \"data/prepared/test.csv\" --output
+      \"metrics/mlflow_run.json\"\n"
+    deps:
+    - path: metrics/metrics.json
+      hash: md5
+      md5: a3da08ee358bf4c606ae2a758e7d3b1b
+      size: 170
+    - path: models/model.joblib
+      hash: md5
+      md5: a44a3fcbfb479a725a69c428e203242c
+      size: 7690969
+    - path: src/purchase_propensity/models/tracking.py
+      hash: md5
+      md5: ac74f93d0b2cf1bdc3cd796be99eb2b7
+      size: 4869
+    params:
+      configs/config.yaml:
+        mlflow.experiment_name: purchase_propensity
+    outs:
+    - path: metrics/mlflow_run.json
+      hash: md5
+      md5: eb2391306835fdb19789b3be49c1f992
+      size: 92
+  register:
+    cmd: "poetry run python -m purchase_propensity.models.registry --input \"metrics/mlflow_run.json\"\
+      \ --output \"metrics/registered_model.json\"\n"
+    deps:
+    - path: metrics/mlflow_run.json
+      hash: md5
+      md5: eb2391306835fdb19789b3be49c1f992
+      size: 92
+    - path: src/purchase_propensity/models/registry.py
+      hash: md5
+      md5: 7d1c82a4246ecfcc685ad508201d4328
+      size: 5814
+    params:
+      configs/config.yaml:
+        mlflow.champion_alias: champion
+        mlflow.min_improvement: 0.0
+        mlflow.registered_model_name: purchase_propensity_classifier
+        mlflow.selection_metric: f1
+    outs:
+    - path: metrics/registered_model.json
+      hash: md5
+      md5: 91574244077bbb8eea184c942e414cab
+      size: 290

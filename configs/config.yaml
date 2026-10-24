@@ -23,3 +23,14 @@ model:
     max_depth: 10
     min_samples_leaf: 2
     class_weight: balanced
+
+mlflow:
+  tracking_uri: sqlite:///mlflow.db
+  experiment_name: purchase_propensity
+  registered_model_name: purchase_propensity_classifier
+  champion_alias: champion
+  selection_metric: f1
+  # Ganho minimo na metrica para o candidato substituir o champion.
+  min_improvement: 0.0
+  run_info_file: mlflow_run.json
+  registry_info_file: registered_model.json

@@ -20,3 +20,13 @@ dist/
 !.env.example
 notebooks/
 tests/
+mlflow.db
+mlruns/
+mlartifacts/
+data/
+models/*
+!models/.gitkeep
+.dvc/cache/
+.dvc/tmp/
+.dvc/config.local
+metrics/

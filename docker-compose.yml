@@ -1,0 +1,49 @@
+services:
+  mlflow:
+    build: .
+    image: purchase-propensity:latest
+    command: >
+      mlflow server
+      --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/artifacts
+      --allowed-hosts mlflow,mlflow:5000,localhost,localhost:5000,127.0.0.1:5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:5000/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  pipeline:
+    image: purchase-propensity:latest
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      # Editar configs/config.yaml no host e rodar de novo gera uma nova run.
+      - ./configs:/app/configs:ro
+    command: ["dvc", "repro"]
+
+  serve:
+    image: purchase-propensity:latest
+    profiles: ["serve"]
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    ports:
+      - "8000:8000"
+    command: >
+      mlflow models serve
+      --model-uri models:/purchase_propensity_classifier@champion
+      --host 0.0.0.0 --port 8000 --env-manager local
+
+volumes:
+  mlflow-data:

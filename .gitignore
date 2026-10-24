@@ -34,3 +34,12 @@ Thumbs.db
 /models/*
 !/models/.gitkeep
 /notebooks/.ipynb_checkpoints/
+
+# MLflow local tracking
+mlflow.db
+mlruns/
+mlartifacts/
+
+# Saidas do MLflow (IDs validos so no tracking server local)
+/metrics/mlflow_run.json
+/metrics/registered_model.json
